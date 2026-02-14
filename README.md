@@ -1,0 +1,1 @@
+This is a simple html file for Architectural design clock-->copy paste the code save it as an .html file and double click it on the folder you saved it and voila!that's it!!Let's put the fun back into computing!!!
