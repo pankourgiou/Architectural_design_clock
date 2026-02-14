@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Architectural Clock</title>
+<style>
+    body {
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        font-family: 'Helvetica', sans-serif;
+        color: #ffffff;
+    }
+    canvas {
+        background: #1e1e1e;
+        border-radius: 20px;
+        box-shadow: 0 0 50px rgba(0,255,255,0.5), inset 0 0 20px rgba(255,255,255,0.1);
+    }
+</style>
+</head>
+<body>
+<canvas id="clock" width="700" height="700"></canvas>
+<script>
+const canvas = document.getElementById('clock');
+const ctx = canvas.getContext('2d');
+const WIDTH = canvas.width;
+const HEIGHT = canvas.height;
+const CENTER_X = WIDTH/2;
+const CENTER_Y = HEIGHT/2;
+const RADIUS = 250;
+
+const labels = [
+    "Baroque", "Romanesque", "Art Deco", "Neoclassical", "Futurist", "Sustainable",
+    "Industrial", "Gothic", "Victorian", "Bauhaus", "Tudor", "Urban design"
+];
+
+function drawClockFace() {
+    ctx.clearRect(0,0,WIDTH,HEIGHT);
+
+    // Outer circle with glow
+    ctx.beginPath();
+    ctx.arc(CENTER_X, CENTER_Y, RADIUS, 0, Math.PI*2);
+    ctx.fillStyle = '#1e1e1e';
+    ctx.fill();
+    ctx.strokeStyle = '#00ffff';
+    ctx.lineWidth = 6;
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = '#00ffff';
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Tick marks
+    for(let i=0;i<60;i++){
+        const angle = (i*6-90) * Math.PI/180;
+        const outer = RADIUS;
+        const inner = (i%5===0) ? RADIUS-20 : RADIUS-10;
+        ctx.beginPath();
+        ctx.moveTo(CENTER_X + Math.cos(angle)*inner, CENTER_Y + Math.sin(angle)*inner);
+        ctx.lineTo(CENTER_X + Math.cos(angle)*outer, CENTER_Y + Math.sin(angle)*outer);
+        ctx.lineWidth = (i%5===0)?3:1;
+        ctx.strokeStyle = '#00ffff';
+        ctx.stroke();
+    }
+
+    // Labels
+    const labelRadius = RADIUS - 40;
+    labels.forEach((label,i)=>{
+        const angle = (i/labels.length*360-90) * Math.PI/180;
+        const x = CENTER_X + Math.cos(angle)*labelRadius;
+        const y = CENTER_Y + Math.sin(angle)*labelRadius;
+        ctx.font = 'bold 16px Helvetica';
+        ctx.fillStyle = '#00ffff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#00ffff';
+        ctx.fillText(label,x,y);
+        ctx.shadowBlur = 0;
+    });
+
+    // Center hub
+    ctx.beginPath();
+    ctx.arc(CENTER_X, CENTER_Y, 8, 0, Math.PI*2);
+    ctx.fillStyle = '#00ffff';
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = '#00ffff';
+    ctx.fill();
+    ctx.shadowBlur = 0;
+}
+
+function drawHand(angle,length,width,color){
+    const x = CENTER_X + Math.cos(angle)*length;
+    const y = CENTER_Y + Math.sin(angle)*length;
+    ctx.beginPath();
+    ctx.moveTo(CENTER_X,CENTER_Y);
+    ctx.lineTo(x,y);
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = color;
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = color;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+}
+
+function updateClock(){
+    drawClockFace();
+    const now = new Date();
+    const sec = now.getSeconds() + now.getMilliseconds()/1000;
+    const min = now.getMinutes() + sec/60;
+    const hr = (now.getHours()%12) + min/60;
+
+    const sec_angle = (sec/60*360-90) * Math.PI/180;
+    const min_angle = (min/60*360-90) * Math.PI/180;
+    const hr_angle = (hr/12*360-90) * Math.PI/180;
+
+    drawHand(hr_angle,RADIUS*0.5,6,'#ff00ff');
+    drawHand(min_angle,RADIUS*0.7,4,'#00ffff');
+    drawHand(sec_angle,RADIUS*0.85,2,'#ffff00');
+
+    requestAnimationFrame(updateClock);
+}
+
+updateClock();
+</script>
+</body>
+</html>
